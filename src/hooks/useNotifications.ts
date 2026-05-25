@@ -6,6 +6,7 @@ import { seedNotifications } from '../data/seed'
 const STORAGE_KEY = 'linkedout_notifications'
 
 function loadNotifications(): Notification[] {
+  if (isSupabaseConfigured) return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
@@ -17,6 +18,7 @@ function loadNotifications(): Notification[] {
 }
 
 function saveNotifications(notifications: Notification[]) {
+  if (isSupabaseConfigured) return
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications)) } catch { /* ignore */ }
 }
 

@@ -102,8 +102,8 @@ export function PostDetailPage({ posts, comments, onReact, onAddComment }: PostD
             <div className="space-y-3">
               {postComments.length === 0 && (
                 <p
-                  className="theme-elevated rounded-[1.75rem] border p-4 text-sm"
-                  style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-subtle)' }}
+                  className="rounded-[1.75rem] border p-4 text-sm"
+                  style={{ background: 'var(--color-empty-bg)', borderColor: 'var(--color-empty-border)', color: 'var(--color-empty-text)' }}
                 >
                   No condolences yet. Be the first to sympathize.
                 </p>

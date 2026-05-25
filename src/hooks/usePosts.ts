@@ -1,7 +1,18 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Comment, Post } from '../types'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { seedPosts, seedComments, nameLeft, nameRight, tagPool, iconPool } from '../data/seed'
+
+const PAGE_SIZE = 10
+
+function shuffle<T>(array: T[]): T[] {
+  const a = [...array]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 function randomItem<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]
@@ -30,48 +41,43 @@ function mapPost(row: Record<string, unknown>): Post {
   }
 }
 
-function mapComment(row: Record<string, unknown>): Comment {
-  return {
-    id: row.id as string,
-    name: row.name as string,
-    text: row.text as string,
-    time: row.time as string,
-  }
-}
-
 export function usePosts() {
   const [posts, setPosts] = useState<Post[]>(() => {
+    if (isSupabaseConfigured) return []
     const raw = localStorage.getItem('linkedout_posts')
-    if (raw) try { return JSON.parse(raw) as Post[] } catch { /* ignore */ }
-    return seedPosts
+    if (raw) try { return shuffle(JSON.parse(raw) as Post[]) } catch { /* ignore */ }
+    return shuffle(seedPosts)
   })
   const [comments, setComments] = useState<Record<string, Comment[]>>(() => {
+    if (isSupabaseConfigured) return {}
     const raw = localStorage.getItem('linkedout_comments')
     if (raw) try { return JSON.parse(raw) as Record<string, Comment[]> } catch { /* ignore */ }
     return seedComments
   })
   const [loading, setLoading] = useState(() => isSupabaseConfigured)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const shuffledIdsRef = useRef<string[]>([])
+  const visibleCountRef = useRef(PAGE_SIZE)
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return
     ;(async () => {
       try {
-        const [postsRes, commentsRes] = await Promise.all([
-          supabase.from('posts').select('*').order('created_at', { ascending: false }),
-          supabase.from('comments').select('*').order('created_at', { ascending: true }),
-        ])
-        if (postsRes.data && postsRes.data.length > 0) {
-          setPosts(postsRes.data.map(mapPost))
+        const { data: allIds } = await supabase.from('posts').select('id')
+        if (!allIds || allIds.length === 0) {
+          setLoading(false)
+          return
         }
-        if (commentsRes.data && commentsRes.data.length > 0) {
-          const grouped: Record<string, Comment[]> = {}
-          for (const c of commentsRes.data) {
-            const row = c as Record<string, unknown>
-            const pid = (row.post_id as string) ?? ''
-            if (!grouped[pid]) grouped[pid] = []
-            grouped[pid].push(mapComment(row))
-          }
-          setComments((prev) => ({ ...prev, ...grouped }))
+        const ids = shuffle(allIds.map((r) => r.id))
+        shuffledIdsRef.current = ids
+        setHasMore(ids.length > PAGE_SIZE)
+
+        const chunk = ids.slice(0, PAGE_SIZE)
+        const { data } = await supabase.from('posts').select('*').in('id', chunk)
+        if (data) {
+          const ordered = chunk.map((id) => data.find((r: Record<string, unknown>) => r.id === id)).filter(Boolean) as Post[]
+          setPosts(ordered.map(mapPost))
         }
       } finally {
         setLoading(false)
@@ -79,12 +85,31 @@ export function usePosts() {
     })()
   }, [])
 
-  const persist = useCallback((p: Post[]) => {
-    try { localStorage.setItem('linkedout_posts', JSON.stringify(p)) } catch { /* ignore */ }
-  }, [])
+  const loadMore = useCallback(async () => {
+    if (!supabase || loadingMore || !hasMore) return
+    setLoadingMore(true)
+    const ids = shuffledIdsRef.current
+    const current = visibleCountRef.current
+    const next = current + PAGE_SIZE
+    const chunk = ids.slice(current, next)
+    if (chunk.length === 0) {
+      setHasMore(false)
+      setLoadingMore(false)
+      return
+    }
+    const { data } = await supabase.from('posts').select('*').in('id', chunk)
+    if (data) {
+      const ordered = chunk.map((id) => data.find((r: Record<string, unknown>) => r.id === id)).filter(Boolean) as Post[]
+      setPosts((prev) => [...prev, ...ordered.map(mapPost)])
+      visibleCountRef.current = next
+      setHasMore(next < ids.length)
+    }
+    setLoadingMore(false)
+  }, [loadingMore, hasMore])
 
-  const persistComments = useCallback((c: Record<string, Comment[]>) => {
-    try { localStorage.setItem('linkedout_comments', JSON.stringify(c)) } catch { /* ignore */ }
+  const persist = useCallback((p: Post[]) => {
+    if (isSupabaseConfigured) return
+    try { localStorage.setItem('linkedout_posts', JSON.stringify(p)) } catch { /* ignore */ }
   }, [])
 
   const addPost = useCallback(async (text: string) => {
@@ -104,10 +129,16 @@ export function usePosts() {
       return updated
     })
     if (supabase) {
-      await supabase.from('posts').insert({
+      const { data } = await supabase.from('posts').insert({
         name: post.name, tag: post.tag, time: post.time,
         icon: post.icon, text: post.text,
-      })
+      }).select()
+      if (data && data[0]) {
+        setPosts((current) =>
+          current.map((p) => (p.id === post.id ? { ...p, id: data[0].id } : p)),
+        )
+        post.id = data[0].id
+      }
     }
     return post
   }, [persist])
@@ -124,7 +155,7 @@ export function usePosts() {
   }, [persist])
 
   const reactToPost = useCallback(async (id: string) => {
-    const updatedReactions = posts.find((p) => p.id === id)?.reactions ?? 0
+    const currentReactions = posts.find((p) => p.id === id)?.reactions ?? 0
     setPosts((current) => {
       const updated = current.map((p) =>
         p.id === id ? { ...p, reactions: p.reactions + 1 } : p,
@@ -133,7 +164,7 @@ export function usePosts() {
       return updated
     })
     if (supabase) {
-      await supabase.from('posts').update({ reactions: updatedReactions + 1 }).eq('id', id)
+      await supabase.from('posts').update({ reactions: currentReactions + 1 }).eq('id', id)
     }
   }, [posts, persist])
 
@@ -146,9 +177,7 @@ export function usePosts() {
     }
     setComments((current) => {
       const postComments = current[postId] ?? []
-      const updated = { ...current, [postId]: [...postComments, comment] }
-      persistComments(updated)
-      return updated
+      return { ...current, [postId]: [...postComments, comment] }
     })
     setPosts((current) => {
       const updated = current.map((p) =>
@@ -161,12 +190,9 @@ export function usePosts() {
       await supabase.from('comments').insert({
         post_id: postId, name: comment.name, text: comment.text, time: comment.time,
       })
-      const currentPost = posts.find((p) => p.id === postId)
-      if (currentPost) {
-        await supabase.from('posts').update({ comments_count: currentPost.comments + 1 }).eq('id', postId)
-      }
+      await supabase.from('posts').update({ comments_count: (posts.find(p => p.id === postId)?.comments ?? 0) + 1 }).eq('id', postId)
     }
-  }, [posts, persistComments, persist])
+  }, [posts, persist])
 
-  return { posts, comments, loading, addPost, deletePost, reactToPost, addComment }
+  return { posts, comments, loading, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment }
 }

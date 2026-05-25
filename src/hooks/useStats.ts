@@ -1,10 +1,18 @@
 import { useState, useCallback } from 'react'
 import type { Stat } from '../types'
 import { stats as seedStats } from '../data/seed'
+import { isSupabaseConfigured } from '../lib/supabase'
+
+const defaultStats: Stat[] = [
+  { label: 'Posts today', value: 0, icon: 'PencilSquareIcon' },
+  { label: 'People venting', value: 0, icon: 'UsersIcon' },
+  { label: 'Replies sent', value: 0, icon: 'SparklesIcon' },
+]
 
 const STORAGE_KEY = 'linkedout_stats'
 
 function loadStats(): Stat[] {
+  if (isSupabaseConfigured) return defaultStats
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
@@ -18,6 +26,7 @@ function loadStats(): Stat[] {
 }
 
 function saveStats(stats: Stat[]) {
+  if (isSupabaseConfigured) return
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stats)) } catch { /* ignore */ }
 }
 

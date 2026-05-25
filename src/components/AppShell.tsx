@@ -27,7 +27,7 @@ export function AppShell({ children, title, subtitle, onOpenComposer, onToggleTh
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex flex-col items-center gap-0.5 rounded-xl px-2 py-1 text-[10px] font-bold transition ${
       isActive
-        ? 'bg-[var(--color-elevated)] text-lime-300'
+        ? 'bg-[var(--color-nav-active-bg)] text-[var(--color-nav-active-text)] shadow-sm ring-1 ring-[var(--color-nav-ring)]'
         : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text-muted)]'
     }`
 
@@ -79,7 +79,8 @@ export function AppShell({ children, title, subtitle, onOpenComposer, onToggleTh
                 Anonymous social feed
               </p>
             </div>
-            <span className="rounded-full bg-lime-300/15 px-3 py-1 text-[10px] font-bold text-lime-200">
+            <span className="rounded-full px-3 py-1 text-[10px] font-bold"
+              style={{ background: 'var(--color-accent-bg)', color: 'var(--color-accent-text)' }}>
               anonymous
             </span>
           </div>
@@ -92,7 +93,7 @@ export function AppShell({ children, title, subtitle, onOpenComposer, onToggleTh
         <nav
           className="fixed bottom-3 left-1/2 z-30 w-[calc(100%-1.5rem)] max-w-[24rem] -translate-x-1/2 rounded-[1.75rem] border px-2 pb-3 pt-3 shadow-2xl backdrop-blur-xl"
           style={{
-            background: 'var(--color-header)',
+            background: 'var(--color-nav-bg)',
             borderColor: 'var(--color-border)',
             boxShadow: '0 25px 50px -12px var(--color-shadow)',
           }}

@@ -81,8 +81,8 @@ export function NotificationPage({
       <section className="space-y-3">
         {notifications.length === 0 && (
           <p
-            className="theme-elevated rounded-[1.75rem] border p-4 text-center text-sm"
-            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-subtle)' }}
+            className="rounded-[1.75rem] border p-4 text-center text-sm"
+            style={{ background: 'var(--color-empty-bg)', borderColor: 'var(--color-empty-border)', color: 'var(--color-empty-text)' }}
           >
             No notifications yet. Check back after your next rejection.
           </p>

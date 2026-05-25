@@ -6,6 +6,7 @@ import { seedJobs } from '../data/seed'
 const STORAGE_KEY = 'linkedout_jobs'
 
 function loadJobs(): Job[] {
+  if (isSupabaseConfigured) return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
@@ -17,6 +18,7 @@ function loadJobs(): Job[] {
 }
 
 function saveJobs(jobs: Job[]) {
+  if (isSupabaseConfigured) return
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs)) } catch { /* ignore */ }
 }
 

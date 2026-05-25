@@ -6,6 +6,7 @@ import { seedMessages } from '../data/seed'
 const STORAGE_KEY = 'linkedout_messages'
 
 function loadMessages(): MessageWithReplies[] {
+  if (isSupabaseConfigured) return []
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
@@ -17,6 +18,7 @@ function loadMessages(): MessageWithReplies[] {
 }
 
 function saveMessages(messages: MessageWithReplies[]) {
+  if (isSupabaseConfigured) return
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)) } catch { /* ignore */ }
 }
 

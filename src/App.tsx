@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import { seedIfEmpty } from './lib/seed'
 import { FeedPage } from './components/FeedPage'
 import { MessagesPage } from './components/MessagesPage'
 import { PostDetailPage } from './components/PostDetailPage'
@@ -25,15 +24,13 @@ function App() {
 
 function AnonymousApp() {
   const navigate = useNavigate()
-  const { posts, comments, addPost, deletePost, reactToPost, addComment } = usePosts()
+  const { posts, comments, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment } = usePosts()
   const { stats, incrementPosts } = useStats()
   const { messages, addReply } = useMessages()
   const { jobs, apply } = useJobs()
   const { notifications, unreadCount, markAllRead } = useNotifications()
   const { theme, toggle: toggleTheme } = useTheme()
   const [composerOpen, setComposerOpen] = useState(false)
-
-  useEffect(() => { seedIfEmpty() }, [])
 
   const openComposer = () => setComposerOpen(true)
   const closeComposer = () => setComposerOpen(false)
@@ -60,6 +57,9 @@ function AnonymousApp() {
               onToggleTheme={toggleTheme}
               theme={theme}
               notificationBadge={unreadCount}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
             />
           }
         />
