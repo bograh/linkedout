@@ -24,7 +24,7 @@ function App() {
 
 function AnonymousApp() {
   const navigate = useNavigate()
-  const { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, addPost, deletePost, reactToPost, addComment } = usePosts()
+  const { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, hashtagResults, searchByHashtag, clearHashtagFilter, addPost, deletePost, reactToPost, addComment } = usePosts()
   const { stats, incrementPosts } = useStats()
   const { messages, loading: messagesLoading, addReply } = useMessages()
   const { jobs, loading: jobsLoading, apply } = useJobs()
@@ -62,6 +62,9 @@ function AnonymousApp() {
               loadingMore={loadingMore}
               loading={loading}
               onRefresh={refresh}
+              hashtagResults={hashtagResults}
+              onSearchHashtag={searchByHashtag}
+              onClearHashtag={clearHashtagFilter}
             />
           }
         />

@@ -25,6 +25,9 @@ type FeedPageProps = {
   loadingMore?: boolean
   loading?: boolean
   onRefresh?: () => Promise<void>
+  hashtagResults?: Post[] | null
+  onSearchHashtag?: (tag: string) => void
+  onClearHashtag?: () => void
 }
 
 function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
@@ -40,7 +43,7 @@ function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
     .slice(0, 5)
 }
 
-export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore, loading, onRefresh }: FeedPageProps) {
+export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore, loading, onRefresh, hashtagResults, onSearchHashtag, onClearHashtag }: FeedPageProps) {
   const [filterTag, setFilterTag] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -64,9 +67,7 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
     setRefreshKey((k) => k + 1)
   }, [onRefresh])
 
-  const filtered = filterTag
-    ? posts.filter((p) => extractHashtags(p.text).includes(filterTag))
-    : posts
+  const displayPosts = hashtagResults ?? posts
 
   const tags = trendingHashtags(posts)
 
@@ -133,7 +134,7 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
             <button
               key={t.tag}
               type="button"
-              onClick={() => setFilterTag(t.tag)}
+              onClick={() => { setFilterTag(t.tag); onSearchHashtag?.(t.tag) }}
               className={`rounded-full px-3 py-1 text-xs font-bold transition ${
                 filterTag === t.tag
                   ? 'bg-lime-300 text-neutral-950'
@@ -154,7 +155,7 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
           {filterTag ? (
             <button
               type="button"
-              onClick={() => setFilterTag(null)}
+              onClick={() => { setFilterTag(null); onClearHashtag?.() }}
               className="flex items-center gap-1 text-xs font-bold hover:text-lime-300"
               style={{ color: 'var(--color-text-subtle)' }}
             >
@@ -174,17 +175,17 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
             </>
           ) : (
             <>
-              {filtered.map((post, index) => (
+              {displayPosts.map((post, index) => (
                 <PostCard
                   key={post.id}
                   post={post}
                   index={index}
                   onReact={onReact}
                   onDelete={onDeletePost}
-                  onHashtagClick={setFilterTag}
+                  onHashtagClick={(tag) => { setFilterTag(tag); onSearchHashtag?.(tag) }}
                 />
               ))}
-              {filtered.length === 0 && (
+              {displayPosts.length === 0 && (
                 <p
                   className="rounded-[1.75rem] border p-4 text-center text-sm"
                   style={{ background: 'var(--color-empty-bg)', borderColor: 'var(--color-empty-border)', color: 'var(--color-empty-text)' }}

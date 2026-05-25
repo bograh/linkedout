@@ -57,6 +57,7 @@ export function usePosts() {
   const [loading, setLoading] = useState(() => isSupabaseConfigured)
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(false)
+  const [hashtagResults, setHashtagResults] = useState<Post[] | null>(null)
   const shuffledIdsRef = useRef<string[]>([])
   const visibleCountRef = useRef(PAGE_SIZE)
 
@@ -194,6 +195,20 @@ export function usePosts() {
     }
   }, [posts, persist])
 
+  const searchByHashtag = useCallback(async (tag: string) => {
+    if (supabase) {
+      const { data } = await supabase.from('posts').select('*').ilike('text', `%${tag}%`)
+      if (data) setHashtagResults(data.map(mapPost))
+    } else {
+      const filtered = posts.filter((p) => p.text.toLowerCase().includes(tag.toLowerCase()))
+      setHashtagResults(filtered)
+    }
+  }, [posts])
+
+  const clearHashtagFilter = useCallback(() => {
+    setHashtagResults(null)
+  }, [])
+
   const refresh = useCallback(async () => {
     if (!supabase) return
     try {
@@ -232,5 +247,5 @@ export function usePosts() {
     }
   }, [])
 
-  return { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, addPost, deletePost, reactToPost, addComment }
+  return { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, hashtagResults, searchByHashtag, clearHashtagFilter, addPost, deletePost, reactToPost, addComment }
 }
