@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Comment, Post } from '../types'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { seedPosts, seedComments, nameLeft, nameRight, tagPool, iconPool } from '../data/seed'
+import { checkRateLimit } from '../lib/rateLimit'
 
 const PAGE_SIZE = 10
 
@@ -114,6 +115,11 @@ export function usePosts() {
   }, [])
 
   const addPost = useCallback(async (text: string) => {
+    const { allowed, remaining } = await checkRateLimit()
+    if (!allowed) {
+      throw new Error(`Rate limited. ${remaining} posts remaining. Try again later.`)
+    }
+
     const post: Post = {
       id: String(nextId++),
       name: randomUsername(),
@@ -141,7 +147,7 @@ export function usePosts() {
         post.id = data[0].id
       }
     }
-    return post
+    return { post, remaining }
   }, [persist])
 
   const deletePost = useCallback(async (id: string) => {

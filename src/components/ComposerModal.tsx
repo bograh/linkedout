@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 type ComposerModalProps = {
-  onSubmit: (text: string) => void
+  onSubmit: (text: string) => Promise<void>
   onClose: () => void
 }
 
@@ -28,17 +28,27 @@ function getGrievanceLabel(count: number) {
 
 export function ComposerModal({ onSubmit, onClose }: ComposerModalProps) {
   const [draft, setDraft] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const chars = draft.length
   const label = getGrievanceLabel(chars)
   const progress = Math.min((chars / MAX_CHARS) * 100, 100)
   const overLimit = chars > MAX_CHARS
 
-  const submit = () => {
+  const submit = async () => {
     const content = draft.trim()
-    if (!content || overLimit) return
-    onSubmit(content)
-    setDraft('')
+    if (!content || overLimit || submitting) return
+    setSubmitting(true)
+    setError('')
+    try {
+      await onSubmit(content)
+      setDraft('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to post')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -89,6 +99,9 @@ export function ComposerModal({ onSubmit, onClose }: ComposerModalProps) {
           placeholder="Share what happened today..."
           autoFocus
         />
+        {error && (
+          <p className="mb-3 text-sm font-bold text-red-400">{error}</p>
+        )}
         <div className="mt-3 flex gap-2">
           <button
             type="button"
@@ -101,14 +114,14 @@ export function ComposerModal({ onSubmit, onClose }: ComposerModalProps) {
           <button
             type="button"
             onClick={submit}
-            disabled={overLimit}
+            disabled={overLimit || submitting}
             className={`flex-1 rounded-2xl px-4 py-3 text-sm font-black text-neutral-950 transition ${
-              overLimit
+              overLimit || submitting
                 ? 'cursor-not-allowed bg-zinc-700 text-zinc-500'
                 : 'bg-lime-300 active:scale-[0.98]'
             }`}
           >
-            Post anonymously
+            {submitting ? 'Posting...' : 'Post anonymously'}
           </button>
         </div>
       </motion.div>

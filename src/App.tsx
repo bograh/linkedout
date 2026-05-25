@@ -52,11 +52,15 @@ function AnonymousApp() {
   const openComposer = () => setComposerOpen(true)
   const closeComposer = () => setComposerOpen(false)
 
-  const submitPost = (text: string) => {
-    addPost(text)
-    incrementPosts()
-    setComposerOpen(false)
-    navigate('/feed')
+  const submitPost = async (text: string) => {
+    try {
+      await addPost(text)
+      incrementPosts()
+      setComposerOpen(false)
+      navigate('/feed')
+    } catch (e) {
+      throw e
+    }
   }
 
   return (
