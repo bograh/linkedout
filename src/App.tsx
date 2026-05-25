@@ -24,11 +24,11 @@ function App() {
 
 function AnonymousApp() {
   const navigate = useNavigate()
-  const { posts, comments, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment } = usePosts()
+  const { posts, comments, loading, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment } = usePosts()
   const { stats, incrementPosts } = useStats()
-  const { messages, addReply } = useMessages()
-  const { jobs, apply } = useJobs()
-  const { notifications, unreadCount, markAllRead } = useNotifications()
+  const { messages, loading: messagesLoading, addReply } = useMessages()
+  const { jobs, loading: jobsLoading, apply } = useJobs()
+  const { notifications, unreadCount, loading: notifsLoading, markAllRead } = useNotifications()
   const { theme, toggle: toggleTheme } = useTheme()
   const [composerOpen, setComposerOpen] = useState(false)
 
@@ -60,6 +60,7 @@ function AnonymousApp() {
               loadMore={loadMore}
               hasMore={hasMore}
               loadingMore={loadingMore}
+              loading={loading}
             />
           }
         />
@@ -68,6 +69,7 @@ function AnonymousApp() {
           element={
             <JobsPage
               jobs={jobs}
+              loading={jobsLoading}
               onOpenComposer={openComposer}
               onApply={apply}
               onToggleTheme={toggleTheme}
@@ -82,6 +84,7 @@ function AnonymousApp() {
             <NotificationPage
               notifications={notifications}
               unreadCount={unreadCount}
+              loading={notifsLoading}
               onOpenComposer={openComposer}
               onMarkAllRead={markAllRead}
               onToggleTheme={toggleTheme}
@@ -94,6 +97,7 @@ function AnonymousApp() {
           element={
             <MessagesPage
               messages={messages}
+              loading={messagesLoading}
               onOpenComposer={openComposer}
               onToggleTheme={toggleTheme}
               theme={theme}

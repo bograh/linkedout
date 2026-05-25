@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 import type { Notification } from '../types'
 import { AppShell } from './AppShell'
+import { NotificationSkeleton } from './Skeleton'
 
 const iconMap: Record<Notification['icon'], typeof BellIcon> = {
   ghost: FaceFrownIcon,
@@ -20,6 +21,7 @@ const iconMap: Record<Notification['icon'], typeof BellIcon> = {
 type NotificationPageProps = {
   notifications: Notification[]
   unreadCount: number
+  loading?: boolean
   onOpenComposer: () => void
   onMarkAllRead: () => void
   onToggleTheme: () => void
@@ -29,6 +31,7 @@ type NotificationPageProps = {
 export function NotificationPage({
   notifications,
   unreadCount,
+  loading,
   onOpenComposer,
   onMarkAllRead,
   onToggleTheme,
@@ -79,6 +82,14 @@ export function NotificationPage({
       </motion.section>
 
       <section className="space-y-3">
+        {loading ? (
+          <>
+            <NotificationSkeleton />
+            <NotificationSkeleton />
+            <NotificationSkeleton />
+          </>
+        ) : (
+          <>
         {notifications.length === 0 && (
           <p
             className="rounded-[1.75rem] border p-4 text-center text-sm"
@@ -130,6 +141,8 @@ export function NotificationPage({
             </motion.div>
           )
         })}
+          </>
+        )}
       </section>
     </AppShell>
   )

@@ -2,16 +2,18 @@ import { Link } from 'react-router-dom'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import type { MessageWithReplies } from '../types'
 import { AppShell } from './AppShell'
+import { MessageCardSkeleton } from './Skeleton'
 
 type MessagesPageProps = {
   messages: MessageWithReplies[]
+  loading?: boolean
   onOpenComposer: () => void
   onToggleTheme: () => void
   theme: 'dark' | 'light'
   notificationBadge?: number
 }
 
-export function MessagesPage({ messages, onOpenComposer, onToggleTheme, theme, notificationBadge }: MessagesPageProps) {
+export function MessagesPage({ messages, loading, onOpenComposer, onToggleTheme, theme, notificationBadge }: MessagesPageProps) {
   return (
     <AppShell
       title="Messages"
@@ -34,7 +36,15 @@ export function MessagesPage({ messages, onOpenComposer, onToggleTheme, theme, n
       </section>
 
       <section className="space-y-4">
-        {messages.map((message) => (
+        {loading ? (
+          <>
+            <MessageCardSkeleton />
+            <MessageCardSkeleton />
+            <MessageCardSkeleton />
+          </>
+        ) : (
+          <>
+          {messages.map((message) => (
           <Link
             key={message.id}
             to={`/messages/${message.id}`}
@@ -61,7 +71,9 @@ export function MessagesPage({ messages, onOpenComposer, onToggleTheme, theme, n
               </span>
             </div>
           </Link>
-        ))}
+          ))}
+          </>
+        )}
       </section>
     </AppShell>
   )

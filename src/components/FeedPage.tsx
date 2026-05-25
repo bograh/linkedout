@@ -9,6 +9,7 @@ import { Button } from './Button'
 import { PostCard } from './PostCard'
 import { DigestCard } from './DigestCard'
 import { PullToRefresh } from './PullToRefresh'
+import { PostCardSkeleton } from './Skeleton'
 
 type FeedPageProps = {
   posts: Post[]
@@ -22,6 +23,7 @@ type FeedPageProps = {
   loadMore?: () => void
   hasMore?: boolean
   loadingMore?: boolean
+  loading?: boolean
 }
 
 function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
@@ -37,7 +39,7 @@ function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
     .slice(0, 5)
 }
 
-export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore }: FeedPageProps) {
+export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore, loading }: FeedPageProps) {
   const [filterTag, setFilterTag] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -163,23 +165,33 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
           )}
         </div>
         <div className="space-y-4">
-          {filtered.map((post, index) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              index={index}
-              onReact={onReact}
-              onDelete={onDeletePost}
-              onHashtagClick={setFilterTag}
-            />
-          ))}
-          {filtered.length === 0 && (
-            <p
-              className="rounded-[1.75rem] border p-4 text-center text-sm"
-              style={{ background: 'var(--color-empty-bg)', borderColor: 'var(--color-empty-border)', color: 'var(--color-empty-text)' }}
-            >
-              No posts with #{filterTag}. Be the first to rant about it.
-            </p>
+          {loading ? (
+            <>
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </>
+          ) : (
+            <>
+              {filtered.map((post, index) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  index={index}
+                  onReact={onReact}
+                  onDelete={onDeletePost}
+                  onHashtagClick={setFilterTag}
+                />
+              ))}
+              {filtered.length === 0 && (
+                <p
+                  className="rounded-[1.75rem] border p-4 text-center text-sm"
+                  style={{ background: 'var(--color-empty-bg)', borderColor: 'var(--color-empty-border)', color: 'var(--color-empty-text)' }}
+                >
+                  No posts with #{filterTag}. Be the first to rant about it.
+                </p>
+              )}
+            </>
           )}
           <div ref={sentinelRef} className="h-4" />
           {loadingMore && (

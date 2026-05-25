@@ -3,9 +3,11 @@ import { BriefcaseIcon } from '@heroicons/react/24/outline'
 import type { Job } from '../types'
 import { AppShell } from './AppShell'
 import { formatCount } from '../utils/format'
+import { JobCardSkeleton } from './Skeleton'
 
 type JobsPageProps = {
   jobs: Job[]
+  loading?: boolean
   onOpenComposer: () => void
   onApply: (id: string) => void
   onToggleTheme: () => void
@@ -13,7 +15,7 @@ type JobsPageProps = {
   notificationBadge?: number
 }
 
-export function JobsPage({ jobs, onOpenComposer, onApply, onToggleTheme, theme, notificationBadge }: JobsPageProps) {
+export function JobsPage({ jobs, loading, onOpenComposer, onApply, onToggleTheme, theme, notificationBadge }: JobsPageProps) {
   return (
     <AppShell
       title="Opportunities"
@@ -47,7 +49,15 @@ export function JobsPage({ jobs, onOpenComposer, onApply, onToggleTheme, theme, 
       </motion.section>
 
       <section className="space-y-4">
-        {jobs.map((job, index) => (
+        {loading ? (
+          <>
+            <JobCardSkeleton />
+            <JobCardSkeleton />
+            <JobCardSkeleton />
+          </>
+        ) : (
+          <>
+          {jobs.map((job, index) => (
           <motion.article
             key={job.id}
             initial={{ opacity: 0, y: 16 }}
@@ -105,7 +115,9 @@ export function JobsPage({ jobs, onOpenComposer, onApply, onToggleTheme, theme, 
               </button>
             </div>
           </motion.article>
-        ))}
+          ))}
+          </>
+        )}
       </section>
     </AppShell>
   )
