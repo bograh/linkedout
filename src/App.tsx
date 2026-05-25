@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { seedIfEmpty } from './lib/seed'
 import { FeedPage } from './components/FeedPage'
 import { MessagesPage } from './components/MessagesPage'
 import { PostDetailPage } from './components/PostDetailPage'
@@ -31,6 +32,8 @@ function AnonymousApp() {
   const { notifications, unreadCount, markAllRead } = useNotifications()
   const { theme, toggle: toggleTheme } = useTheme()
   const [composerOpen, setComposerOpen] = useState(false)
+
+  useEffect(() => { seedIfEmpty() }, [])
 
   const openComposer = () => setComposerOpen(true)
   const closeComposer = () => setComposerOpen(false)
