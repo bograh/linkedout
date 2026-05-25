@@ -1,12 +1,6 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import { FeedPage } from './components/FeedPage'
-import { MessagesPage } from './components/MessagesPage'
-import { PostDetailPage } from './components/PostDetailPage'
-import { MessageThread } from './components/MessageThread'
 import { ComposerModal } from './components/ComposerModal'
-import { JobsPage } from './components/JobsPage'
-import { NotificationPage } from './components/NotificationPage'
 import { usePosts } from './hooks/usePosts'
 import { useStats } from './hooks/useStats'
 import { useMessages } from './hooks/useMessages'
@@ -14,11 +8,34 @@ import { useJobs } from './hooks/useJobs'
 import { useNotifications } from './hooks/useNotifications'
 import { useTheme } from './hooks/useTheme'
 
+const FeedPage = lazy(() => import('./components/FeedPage').then((m) => ({ default: m.FeedPage })))
+const JobsPage = lazy(() => import('./components/JobsPage').then((m) => ({ default: m.JobsPage })))
+const NotificationPage = lazy(() => import('./components/NotificationPage').then((m) => ({ default: m.NotificationPage })))
+const MessagesPage = lazy(() => import('./components/MessagesPage').then((m) => ({ default: m.MessagesPage })))
+const PostDetailPage = lazy(() => import('./components/PostDetailPage').then((m) => ({ default: m.PostDetailPage })))
+const MessageThread = lazy(() => import('./components/MessageThread').then((m) => ({ default: m.MessageThread })))
+
 function App() {
   return (
     <BrowserRouter>
-      <AnonymousApp />
+      <Suspense fallback={<PageFallback />}>
+        <AnonymousApp />
+      </Suspense>
     </BrowserRouter>
+  )
+}
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center" style={{ background: 'var(--color-bg)' }}>
+      <div className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--color-text-muted)' }}>
+        <div
+          className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
+          style={{ borderColor: 'var(--color-text-muted)', borderTopColor: 'transparent' }}
+        />
+        Loading...
+      </div>
+    </div>
   )
 }
 
