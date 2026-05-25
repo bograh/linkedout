@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { FireIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import type { Post, Stat } from '../types'
 import { extractHashtags } from '../utils/hashtags'
+import { Icon } from './Icon'
 import { AppShell } from './AppShell'
 import { Button } from './Button'
 import { PostCard } from './PostCard'
@@ -94,7 +95,7 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
             className="theme-elevated rounded-3xl border p-3"
             style={{ borderColor: 'var(--color-border)' }}
           >
-            <stat.icon className="mb-3 h-5 w-5 text-[var(--color-text)]" />
+            <Icon name={stat.icon} className="mb-3 h-5 w-5 text-[var(--color-text)]" />
             <p className="text-lg font-black" style={{ color: 'var(--color-text)' }}>{stat.value}</p>
             <p className="text-[11px] leading-tight" style={{ color: 'var(--color-text-muted)' }}>{stat.label}</p>
           </div>

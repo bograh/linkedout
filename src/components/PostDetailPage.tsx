@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import type { Comment, Post } from '../types'
+import { Icon } from './Icon'
 
 type PostDetailPageProps = {
   posts: Post[]
@@ -66,7 +67,7 @@ export function PostDetailPage({ posts, comments, onReact, onAddComment }: PostD
           >
             <div className="mb-4 flex gap-3">
               <div className="theme-icon-bg flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl">
-                <post.icon className="h-6 w-6 text-[var(--color-text)]" />
+                <Icon name={post.icon} className="h-6 w-6 text-[var(--color-text)]" />
               </div>
               <div className="min-w-0 flex-1">
                 <h4 className="truncate font-bold">{post.name}</h4>

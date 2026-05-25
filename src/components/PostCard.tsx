@@ -8,6 +8,7 @@ import {
 import { Link } from 'react-router-dom'
 import type { Post } from '../types'
 import { formatCount } from '../utils/format'
+import { Icon } from './Icon'
 import { HashtagText } from './HashtagText'
 import { ConfirmDialog } from './ConfirmDialog'
 
@@ -106,7 +107,7 @@ export function PostCard({ post, index, onReact, onDelete, onHashtagClick }: Pos
 
         <div className="mb-4 flex gap-3">
           <div className="theme-icon-bg flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl">
-            <post.icon className="h-6 w-6 text-[var(--color-text)]" />
+            <Icon name={post.icon} className="h-6 w-6 text-[var(--color-text)]" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">

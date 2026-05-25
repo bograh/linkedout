@@ -1,5 +1,3 @@
-import type { ComponentType } from 'react'
-
 export type Comment = {
   id: string
   name: string
@@ -12,7 +10,7 @@ export type Post = {
   name: string
   tag: string
   time: string
-  icon: ComponentType<{ className?: string }>
+  icon: string
   text: string
   reactions: number
   comments: number
@@ -32,7 +30,7 @@ export type MessageWithReplies = Message & {
 export type Stat = {
   label: string
   value: number
-  icon: ComponentType<{ className?: string }>
+  icon: string
 }
 
 export type Job = {
@@ -49,7 +47,7 @@ export type Job = {
 
 export type Notification = {
   id: string
-  icon: 'ghost' | 'eye' | 'reject' | 'view' | 'coffee'
+  icon: string
   text: string
   time: string
   read: boolean
