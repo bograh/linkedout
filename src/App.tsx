@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { ComposerModal } from './components/ComposerModal'
 import { usePosts } from './hooks/usePosts'
 import { useStats } from './hooks/useStats'
@@ -18,6 +19,7 @@ const MessageThread = lazy(() => import('./components/MessageThread').then((m) =
 function App() {
   return (
     <BrowserRouter>
+      <Analytics />
       <Suspense fallback={<PageFallback />}>
         <AnonymousApp />
       </Suspense>
