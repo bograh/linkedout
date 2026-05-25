@@ -24,6 +24,7 @@ type FeedPageProps = {
   hasMore?: boolean
   loadingMore?: boolean
   loading?: boolean
+  onRefresh?: () => Promise<void>
 }
 
 function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
@@ -39,7 +40,7 @@ function trendingHashtags(posts: Post[]): { tag: string; count: number }[] {
     .slice(0, 5)
 }
 
-export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore, loading }: FeedPageProps) {
+export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, onToggleTheme, theme, notificationBadge, loadMore, hasMore, loadingMore, loading, onRefresh }: FeedPageProps) {
   const [filterTag, setFilterTag] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -59,9 +60,9 @@ export function FeedPage({ posts, stats, onOpenComposer, onReact, onDeletePost, 
   }, [loadMore, hasMore])
 
   const handleRefresh = useCallback(async () => {
-    await new Promise((r) => setTimeout(r, 1200))
+    if (onRefresh) await onRefresh()
     setRefreshKey((k) => k + 1)
-  }, [])
+  }, [onRefresh])
 
   const filtered = filterTag
     ? posts.filter((p) => extractHashtags(p.text).includes(filterTag))

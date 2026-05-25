@@ -24,7 +24,7 @@ function App() {
 
 function AnonymousApp() {
   const navigate = useNavigate()
-  const { posts, comments, loading, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment } = usePosts()
+  const { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, addPost, deletePost, reactToPost, addComment } = usePosts()
   const { stats, incrementPosts } = useStats()
   const { messages, loading: messagesLoading, addReply } = useMessages()
   const { jobs, loading: jobsLoading, apply } = useJobs()
@@ -61,6 +61,7 @@ function AnonymousApp() {
               hasMore={hasMore}
               loadingMore={loadingMore}
               loading={loading}
+              onRefresh={refresh}
             />
           }
         />

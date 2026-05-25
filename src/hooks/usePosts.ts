@@ -194,5 +194,43 @@ export function usePosts() {
     }
   }, [posts, persist])
 
-  return { posts, comments, loading, loadingMore, hasMore, loadMore, addPost, deletePost, reactToPost, addComment }
+  const refresh = useCallback(async () => {
+    if (!supabase) return
+    try {
+      const [idsRes, commentsRes] = await Promise.all([
+        supabase.from('posts').select('id'),
+        supabase.from('comments').select('*').order('created_at', { ascending: true }),
+      ])
+      if (idsRes.data && idsRes.data.length > 0) {
+        const ids = shuffle(idsRes.data.map((r) => r.id))
+        shuffledIdsRef.current = ids
+        visibleCountRef.current = PAGE_SIZE
+        setHasMore(ids.length > PAGE_SIZE)
+        const chunk = ids.slice(0, PAGE_SIZE)
+        const { data } = await supabase.from('posts').select('*').in('id', chunk)
+        if (data) {
+          const ordered = chunk.map((id) => data.find((r: Record<string, unknown>) => r.id === id)).filter(Boolean) as Post[]
+          setPosts(ordered.map(mapPost))
+        }
+      } else {
+        setPosts([])
+        shuffledIdsRef.current = []
+        setHasMore(false)
+      }
+      if (commentsRes.data && commentsRes.data.length > 0) {
+        const grouped: Record<string, Comment[]> = {}
+        for (const c of commentsRes.data) {
+          const row = c as Record<string, unknown>
+          const pid = (row.post_id as string) ?? ''
+          if (!grouped[pid]) grouped[pid] = []
+          grouped[pid].push(row as unknown as Comment)
+        }
+        setComments(grouped)
+      }
+    } catch {
+      // refresh failed silently
+    }
+  }, [])
+
+  return { posts, comments, loading, loadingMore, hasMore, loadMore, refresh, addPost, deletePost, reactToPost, addComment }
 }
