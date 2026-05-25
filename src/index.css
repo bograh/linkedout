@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #09090b;
+  --color-bg-tertiary: #171717;
+  --color-elevated: rgba(255, 255, 255, 0.04);
+  --color-elevated-hover: rgba(255, 255, 255, 0.06);
+  --color-header: rgba(10, 10, 10, 0.9);
+  --color-icon-bg: #27272a;
+  --color-input: #09090b;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-text: #fff;
+  --color-text-secondary: #d4d4d8;
+  --color-text-muted: #a1a1aa;
+  --color-text-subtle: #71717a;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+
+  --gradient-surface: linear-gradient(to bottom, var(--color-bg), var(--color-bg-secondary), var(--color-bg-tertiary));
+}
+
+[data-theme="light"] {
+  --color-bg: #f5f5f5;
+  --color-bg-secondary: #fff;
+  --color-bg-tertiary: #e5e5e5;
+  --color-elevated: rgba(0, 0, 0, 0.03);
+  --color-elevated-hover: rgba(0, 0, 0, 0.06);
+  --color-header: rgba(245, 245, 245, 0.9);
+  --color-icon-bg: #d4d4d8;
+  --color-input: #fff;
+  --color-overlay: rgba(0, 0, 0, 0.3);
+  --color-text: #0a0a0a;
+  --color-text-secondary: #27272a;
+  --color-text-muted: #52525b;
+  --color-text-subtle: #a1a1aa;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-shadow: rgba(0, 0, 0, 0.1);
+
+  --gradient-surface: linear-gradient(to bottom, var(--color-bg), var(--color-bg-secondary), var(--color-bg-tertiary));
+}
+
+.theme-surface { background: var(--color-bg); }
+.theme-surface-secondary { background: var(--color-bg-secondary); }
+.theme-elevated { background: var(--color-elevated); }
+.theme-elevated-hover { background: var(--color-elevated-hover); }
+.theme-icon-bg { background: var(--color-icon-bg); }
+.theme-input { background: var(--color-input); }
+.theme-overlay { background: var(--color-overlay); }
+.theme-text { color: var(--color-text); }
+.theme-text-secondary { color: var(--color-text-secondary); }
+.theme-text-muted { color: var(--color-text-muted); }
+.theme-text-subtle { color: var(--color-text-subtle); }
+.theme-border { border-color: var(--color-border); }
+.theme-header-bg { background: var(--color-header); }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100svh;
+}
